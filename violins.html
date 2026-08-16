@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Four Strings — The Violin | Zane 3D Creator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<!-- Google Model-Viewer for Photorealistic 3D GLB Rendering -->
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+<!-- Three.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<style>
+  :root{
+    --ebony:#0d0806;
+    --ebony-card:#160e0a;
+    --ebony-border:rgba(243,234,214,0.14);
+    --varnish-deep:#3a2416;
+    --varnish:#7a4526;
+    --amber:#d98d3e;
+    --amber-glow:rgba(217,141,62,0.45);
+    --maple:#f3d79b;
+    --parchment:#f6efe0;
+    --parchment-dim:#b8ab96;
+    --brass:#b88846;
+    --string-hi:#fff2d4;
+    --line: rgba(243,234,214,0.14);
+    --ease: cubic-bezier(.22,.61,.36,1);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;overflow-x:hidden;}
+  
+  /* Custom Sleek Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--ebony); }
+  ::-webkit-scrollbar-thumb { background: #3a2416; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--amber); }
+
+  body{
+    background:var(--ebony);
+    color:var(--parchment);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+    line-height:1.6;
+  }
+  ::selection{background:var(--amber);color:var(--ebony);}
+
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:500;letter-spacing:-0.01em;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.75rem;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--amber);
+    display:inline-flex;
+    align-items:center;
+    gap:12px;
+  }
+  .eyebrow::before{content:'';width:24px;height:1.5px;background:var(--amber);display:inline-block;}
+
+  a{color:inherit;text-decoration:none;}
+  img,svg{display:block;max-width:100%;}
+
+  /* Grain Texture Overlay */
+  .grain{
+    position:fixed;inset:0;pointer-events:none;z-index:200;
+    opacity:0.04;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Ambient Glow Background */
+  .ambient-aurora {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 15%, rgba(122,69,38,0.25), transparent 70%),
+      radial-gradient(ellipse 50% 50% at 85% 45%, rgba(217,141,62,0.18), transparent 70%),
+      radial-gradient(ellipse 70% 60% at 50% 85%, rgba(58,36,22,0.4), transparent 75%);
+  }
+
+  /* Nav */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:22px clamp(20px, 6vw, 64px);
+    font-family:'JetBrains Mono',monospace;font-size:0.78rem;letter-spacing:0.08em;
+    background:linear-gradient(to bottom, rgba(13,8,6,0.94), rgba(13,8,6,0.5) 70%, transparent);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(243,234,214,0.06);
+  }
+  nav .nav-back{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:600;
+    font-size:0.82rem;
+    color:var(--parchment);
+    display:flex;align-items:center;gap:8px;
+    transition:color 0.3s, transform 0.3s;
+    letter-spacing:0.08em;
+  }
+  nav .nav-back:hover{
+    color:var(--amber);
+    transform:translateX(-3px);
+  }
+  nav .links{display:flex;gap:28px;text-transform:uppercase;color:var(--parchment-dim);}
+  nav .links a{position:relative;padding:4px 0;transition:color .3s var(--ease);}
+  nav .links a:hover{color:var(--maple);}
+  nav .links a::after{
+    content:'';position:absolute;bottom:0;left:0;width:100%;height:1px;
+    background:var(--amber);transform:scaleX(0);transform-origin:left;
+    transition:transform .3s var(--ease);
+  }
+  nav .links a:hover::after{transform:scaleX(1);}
+
+  section{position:relative;z-index:2;padding:clamp(80px, 12vw, 140px) clamp(20px, 6vw, 80px);}
+
+  /* Hero */
+  .hero{
+    min-height:100svh;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    text-align:center;padding-top:100px;
+    position:relative;
+  }
+  .hero-scroll-svg{width:min(58vw,260px);margin:0 auto 12px;opacity:.9;}
+  .hero-scroll-svg path{
+    fill:none;stroke:var(--amber);stroke-width:1.5;
+    stroke-dasharray:900;stroke-dashoffset:900;
+    animation:draw 2.6s var(--ease) forwards .2s;
+  }
+  @keyframes draw{to{stroke-dashoffset:0;}}
+
+  .hero h1{
+    font-size:clamp(2.8rem,7.5vw,5.8rem);
+    line-height:1.02;
+    color:var(--parchment);
+    opacity:1;
+    animation:riseIn 0.8s var(--ease) forwards;
+  }
+  .hero h1 em{
+    color:var(--amber);
+    font-style:italic;
+    font-weight:400;
+    text-shadow: 0 0 35px rgba(217,141,62,0.45);
+  }
+  .hero p{
+    margin-top:22px;max-width:560px;font-size:clamp(1rem, 1.4vw, 1.15rem);color:var(--parchment-dim);line-height:1.7;
+    opacity:1;
+    animation:riseIn 0.8s var(--ease) forwards;
+  }
+  @keyframes riseIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+  .hero .cue{
+    margin-top:44px;
+    opacity:1;
+    animation:riseIn 0.8s var(--ease) forwards;
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+    font-family:'JetBrains Mono',monospace;font-size:0.75rem;letter-spacing:0.18em;color:var(--amber);
+    text-transform:uppercase;
+    padding: 12px 28px;
+    border: 1px solid rgba(217,141,62,0.35);
+    border-radius: 30px;
+    background: rgba(217,141,62,0.08);
+    transition: all 0.3s;
+  }
+  .hero .cue:hover {
+    background: rgba(217,141,62,0.22);
+    border-color: var(--amber);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(217,141,62,0.35);
+  }
+
+  /* Reveal */
+  .reveal{opacity:1;transform:translateY(0);transition:opacity .9s var(--ease), transform .9s var(--ease);}
+  .reveal.in{opacity:1;transform:translateY(0);}
+
+  .section-head{max-width:680px;margin-bottom:52px;}
+  .section-head h2{font-size:clamp(2rem,4.5vw,3.4rem);margin-top:14px;color:var(--parchment);line-height:1.1;}
+  .section-head p{margin-top:16px;color:var(--parchment-dim);font-size:1.02rem;line-height:1.7;}
+
+  /* 3D Model & Interactive Strings */
+  .instrument{background:var(--ebony-card);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  
+  .instrument-grid{
+    display:grid;grid-template-columns:1fr;gap:48px;align-items:center;
+  }
+  @media(min-width:960px){ .instrument-grid{grid-template-columns:1.15fr 0.85fr;} }
+
+  /* 3D Model Showcase Card */
+  .model-showcase-card{
+    position:relative;
+    width:100%;
+    height:580px;
+    border-radius:28px;
+    background:radial-gradient(circle at 50% 40%, #28170e 0%, #0d0705 85%);
+    border:1.5px solid rgba(217,141,62,0.4);
+    box-shadow: 0 25px 70px rgba(0,0,0,0.85), inset 0 0 70px rgba(0,0,0,0.8), 0 0 40px rgba(217,141,62,0.2);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* Google Model Viewer */
+  model-viewer {
+    width: 100%;
+    height: 100%;
+    --poster-color: transparent;
+    cursor: grab;
+  }
+  model-viewer:active { cursor: grabbing; }
+
+  #violin-canvas-container{
+    width:100%;
+    height:100%;
+    position:absolute;
+    inset:0;
+    cursor:grab;
+  }
+  #violin-canvas-container:active{cursor:grabbing;}
+
+  /* Center 1-Click GLB Loader Overlay */
+  .glb-center-loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 30px;
+    background: radial-gradient(circle at center, rgba(38, 22, 14, 0.95) 0%, rgba(13, 8, 6, 0.98) 90%);
+    z-index: 15;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+  }
+  .glb-center-loader.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .glb-loader-icon {
+    font-size: 56px;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 0 22px rgba(217,141,62,0.65));
+    animation: floatIcon 3.2s ease-in-out infinite;
+  }
+  @keyframes floatIcon {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .glb-center-loader h3 {
+    font-size: 1.8rem;
+    color: var(--parchment);
+    margin-bottom: 8px;
+  }
+  .glb-center-loader p {
+    font-size: 0.95rem;
+    color: var(--parchment-dim);
+    max-width: 380px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .glb-open-action-btn {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #0d0806;
+    background: linear-gradient(135deg, #f3d79b 0%, #d98d3e 100%);
+    border: none;
+    padding: 14px 34px;
+    border-radius: 40px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(217,141,62,0.45), 0 0 20px rgba(217,141,62,0.25);
+    transition: transform 0.25s, box-shadow 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .glb-open-action-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 16px 45px rgba(217,141,62,0.65), 0 0 35px rgba(243,215,155,0.4);
+  }
+  .glb-note {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(246, 239, 224, 0.45);
+    letter-spacing: 0.06em;
+  }
+
+  /* 3D Floating Controls HUD */
+  .model-hud{
+    position:absolute;
+    top:16px;left:16px;right:16px;
+    display:flex;justify-content:space-between;align-items:center;
+    pointer-events:none;
+    z-index:20;
+  }
+  .model-badge{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.72rem;
+    letter-spacing:0.12em;
+    color:var(--maple);
+    background:rgba(13,8,6,0.85);
+    backdrop-filter:blur(8px);
+    padding:6px 14px;
+    border-radius:20px;
+    border:1px solid rgba(217,141,62,0.45);
+    display:flex;align-items:center;gap:8px;
+  }
+  .model-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber);}
+
+  .model-actions{
+    display:flex;gap:8px;pointer-events:auto;
+  }
+  .model-btn{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.7rem;
+    color:var(--parchment);
+    background:rgba(22,14,10,0.85);
+    backdrop-filter:blur(8px);
+    border:1px solid rgba(243,234,214,0.2);
+    border-radius:8px;
+    padding:6px 12px;
+    cursor:pointer;
+    transition:all 0.25s;
+    display:flex;align-items:center;gap:6px;
+  }
+  .model-btn:hover{
+    border-color:var(--amber);
+    color:var(--amber);
+    background:rgba(217,141,62,0.15);
+  }
+  .model-btn.active{
+    background:var(--amber);
+    color:var(--ebony);
+    font-weight:600;
+  }
+
+  .model-hint-bar{
+    position:absolute;
+    bottom:14px;left:50%;
+    transform:translateX(-50%);
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.7rem;
+    letter-spacing:0.08em;
+    color:rgba(246,239,224,0.7);
+    background:rgba(13,8,6,0.8);
+    backdrop-filter:blur(6px);
+    padding:6px 18px;
+    border-radius:20px;
+    pointer-events:none;
+    white-space:nowrap;
+    border:1px solid rgba(243,234,214,0.1);
+    z-index: 10;
+  }
+
+  /* 3D Resonance Ripple Overlay when plucking */
+  .acoustic-glow-ring {
+    position:absolute;
+    top:50%;left:50%;
+    width:180px;height:180px;
+    border-radius:50%;
+    transform:translate(-50%, -50%) scale(0.5);
+    border:2px solid var(--amber);
+    opacity:0;
+    pointer-events:none;
+    z-index:5;
+  }
+  .acoustic-glow-ring.plucked {
+    animation: acousticPulse 0.9s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+  }
+  @keyframes acousticPulse {
+    0% { transform:translate(-50%, -50%) scale(0.3); opacity:0.95; border-color:var(--maple); }
+    100% { transform:translate(-50%, -50%) scale(2.6); opacity:0; border-color:var(--amber); }
+  }
+
+  /* Interactive Pullable Strings Panel */
+  .strings-panel{
+    display:flex;flex-direction:column;gap:16px;
+  }
+
+  .strum-track-header {
+    display:flex;justify-content:space-between;align-items:center;
+    padding-bottom:6px;
+  }
+  .strum-track-header span {
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.72rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--parchment-dim);
+  }
+
+  /* Interactive Pullable String Row */
+  .string-row{
+    display:grid;grid-template-columns:54px 1fr 95px;align-items:center;gap:18px;
+    padding:16px 20px;
+    border:1.5px solid var(--line);
+    border-radius:14px;
+    background:linear-gradient(180deg, rgba(243,234,214,0.04), rgba(243,234,214,0.01));
+    cursor:grab;
+    user-select:none;-webkit-user-select:none;touch-action:none;
+    transition:border-color 0.25s var(--ease), background 0.25s var(--ease), box-shadow 0.25s var(--ease);
+    position:relative;
+    overflow:hidden;
+  }
+  .string-row:active{cursor:grabbing;}
+  
+  .string-row::before{
+    content:'';
+    position:absolute;inset:0;
+    background:radial-gradient(circle at 10% 50%, rgba(217,141,62,0.2), transparent 70%);
+    opacity:0;
+    transition:opacity 0.3s;
+  }
+  .string-row:hover, .string-row.active, .string-row.pulling{
+    border-color:var(--amber);
+    background:rgba(217,141,62,0.12);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 25px rgba(217,141,62,0.25);
+  }
+  .string-row:hover::before, .string-row.active::before, .string-row.pulling::before{opacity:1;}
+
+  .string-row .note-badge{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .string-row .note-name{
+    font-family:'Fraunces',serif;font-style:italic;font-size:1.85rem;line-height:1;color:var(--maple);
+    text-shadow: 0 0 15px rgba(243,215,155,0.4);
+  }
+  .string-row .string-num{
+    font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--parchment-dim);
+  }
+
+  .string-row .string-canvas-holder{
+    position:relative;
+    height:50px;
+    display:flex;
+    align-items:center;
+  }
+  .string-row svg{width:100%;height:100%;overflow:visible;}
+  
+  .string-row .string-line{
+    stroke:var(--string-hi);
+    stroke-width:2.8;
+    fill:none;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    filter:drop-shadow(0 0 5px rgba(255,242,212,0.7));
+    transition:none;
+  }
+
+  .string-row .string-pull-guide {
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.62rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:rgba(246,239,224,0.35);
+    pointer-events:none;
+    transition:opacity 0.2s;
+  }
+  .string-row:hover .string-pull-guide {
+    opacity: 0.8;
+    color: var(--amber);
+  }
+  .string-row.pulling .string-pull-guide {
+    opacity: 0;
+  }
+  
+  .string-row .freq-col{
+    text-align:right;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .string-row .freq{
+    font-family:'JetBrains Mono',monospace;font-size:0.82rem;font-weight:600;color:var(--amber);
+  }
+  .string-row .pluck-btn-hint{
+    font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.08em;color:var(--parchment-dim);text-transform:uppercase;
+  }
+
+  /* Control bar */
+  .instrument-controls{
+    margin-top:20px;
+    padding:16px 20px;
+    background:rgba(13,8,6,0.7);
+    border:1px solid var(--line);
+    border-radius:14px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    font-family:'JetBrains Mono',monospace;font-size:0.75rem;letter-spacing:0.06em;color:var(--parchment-dim);
+  }
+  .status-wrapper{
+    display:flex;align-items:center;gap:8px;min-width:140px;
+  }
+  .status-wrapper .status-text{color:var(--amber);font-weight:600;}
+  .vol-row{display:flex;align-items:center;gap:10px;}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100px;height:4px;background:rgba(243,234,214,0.18);outline:none;border-radius:3px;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--amber);cursor:pointer;
+    box-shadow: 0 0 10px var(--amber);
+  }
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--amber);border:none;cursor:pointer;}
+
+  .start-audio-btn{
+    font-family:'JetBrains Mono',monospace;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;
+    color:var(--ebony);background:linear-gradient(135deg, var(--maple), var(--amber));
+    border:none;padding:10px 22px;border-radius:30px;cursor:pointer;
+    transition:transform .25s var(--ease), box-shadow .25s;
+    box-shadow:0 4px 15px rgba(217,141,62,0.3);
+  }
+  .start-audio-btn:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(217,141,62,0.5);}
+  .start-audio-btn[disabled]{opacity:0.6;cursor:default;transform:none;box-shadow:none;}
+
+  /* Anatomy Hotspot Explorer */
+  .anatomy-wrap{display:grid;grid-template-columns:1fr;gap:50px;}
+  @media(min-width:960px){.anatomy-wrap{grid-template-columns:0.95fr 1.05fr;align-items:start;}}
+
+  .anatomy-preview-card{
+    background:var(--ebony-card);
+    border:1px solid var(--line);
+    border-radius:24px;
+    padding:30px 24px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+  }
+  .anatomy-svg-holder{position:relative;display:flex;justify-content:center;}
+  .anatomy-svg{width:min(68vw,280px);}
+  .hotspot{
+    fill:var(--amber);opacity:0.85;cursor:pointer;transition:all .25s var(--ease);
+  }
+  .hotspot:hover, .hotspot.active{fill:var(--maple);opacity:1;r:9;filter:drop-shadow(0 0 8px var(--amber));}
+
+  .anatomy-list{display:flex;flex-direction:column;border-top:1px solid var(--line);}
+  .anatomy-item{
+    padding:18px 8px;border-bottom:1px solid var(--line);cursor:pointer;
+    display:flex;flex-direction:column;gap:6px;transition:all .3s var(--ease);
+    border-radius:8px;
+  }
+  .anatomy-item:hover{background:rgba(217,141,62,0.05);padding-left:14px;}
+  .anatomy-item .row{display:flex;justify-content:space-between;align-items:center;}
+  .anatomy-item h4{font-family:'Fraunces',serif;font-weight:500;font-size:1.2rem;color:var(--parchment);transition:color .25s;}
+  .anatomy-item .num{font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--amber);}
+  .anatomy-item p{
+    max-height:0;overflow:hidden;opacity:0;color:var(--parchment-dim);font-size:0.94rem;line-height:1.65;
+    transition:max-height .4s var(--ease), opacity .3s var(--ease), margin .4s var(--ease);
+  }
+  .anatomy-item.open p{max-height:140px;opacity:1;margin-top:6px;}
+  .anatomy-item.open h4{color:var(--amber);}
+
+  /* Timeline */
+  .timeline{border-top:1px solid var(--line);}
+  .tl-item{
+    display:grid;grid-template-columns:1fr;gap:8px;
+    padding:34px 0;border-bottom:1px solid var(--line);position:relative;
+  }
+  @media(min-width:760px){ .tl-item{grid-template-columns:220px 1fr;gap:36px;align-items:baseline;} }
+  .tl-item .date{font-family:'JetBrains Mono',monospace;color:var(--amber);font-size:0.9rem;font-weight:600;letter-spacing:0.04em;}
+  .tl-item h4{font-family:'Fraunces',serif;font-weight:500;font-size:1.35rem;color:var(--parchment);margin-bottom:8px;}
+  .tl-item p{color:var(--parchment-dim);font-size:0.96rem;line-height:1.7;max-width:580px;}
+
+  /* Footer */
+  footer{
+    padding:60px clamp(20px, 6vw, 80px) 40px;display:flex;flex-direction:column;gap:24px;
+    border-top:1px solid var(--line);
+    background:var(--ebony-card);
+  }
+  footer .top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px;align-items:center;}
+  footer .mark{font-family:'Fraunces',serif;font-style:italic;font-size:1.35rem;color:var(--maple);}
+  footer .meta{font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--parchment-dim);letter-spacing:0.06em;}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .hero h1,.hero p,.hero .cue,.reveal{animation:none !important;opacity:1 !important;transform:none !important;}
+    .hero-scroll-svg path{animation:none !important;stroke-dashoffset:0;}
+  }
+
+  /* Floating Cursor Mode Switcher (Hand vs Violin Bow) */
+  .cursor-mode-selector {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(18, 11, 8, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(217, 141, 62, 0.4);
+    padding: 6px 14px;
+    border-radius: 40px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75), 0 0 25px rgba(217, 141, 62, 0.3);
+  }
+  .cursor-mode-selector .mode-title {
+    color: var(--parchment-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+  .mode-pill-group {
+    display: flex;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 30px;
+    padding: 3px;
+  }
+  .mode-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: rgba(246, 239, 224, 0.7);
+    background: transparent;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .mode-btn.active {
+    color: #0d0806;
+    background: linear-gradient(135deg, #f3d79b 0%, #d98d3e 100%);
+    box-shadow: 0 4px 15px rgba(217, 141, 62, 0.45);
+  }
+  .mode-btn:hover:not(.active) {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.15);
+  }
+</style>
+</head>
+<body>
+
+<!-- Violin Bow Cursor Canvas Overlay -->
+<canvas id="bowCursorCanvas" style="position: fixed; inset: 0; pointer-events: none; z-index: 99999; display: none;"></canvas>
+
+<!-- Floating Cursor Mode Selector (Hand ✋ vs Bow 🎻) -->
+<div class="cursor-mode-selector" id="cursorModeSelector">
+  <span class="mode-title">CURSOR (<kbd style="color:var(--amber);background:rgba(217,141,62,0.2);padding:1px 5px;border-radius:4px;font-family:inherit;">E</kbd>):</span>
+  <div class="mode-pill-group">
+    <button class="mode-btn" id="modeHandBtn" title="Hand Mode — Pull & Pluck Strings">
+      <span>✋ Hand</span>
+    </button>
+    <button class="mode-btn active" id="modeBowBtn" title="Bow Mode — Strike & Bow Strings">
+      <span>🎻 Bow</span>
+    </button>
+  </div>
+</div>
+
+<div class="grain"></div>
+<div class="ambient-aurora"></div>
+
+<nav>
+  <a href="portfolio.html" class="nav-back">
+    <span>←</span> ZANE PORTFOLIO
+  </a>
+  <div class="links">
+    <a href="#instrument">3D Model &amp; Pull Strings</a>
+    <a href="#anatomy">Anatomy</a>
+    <a href="#history">500 Years</a>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <svg class="hero-scroll-svg" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
+    <path d="M100 10 C 60 10 40 40 55 65 C 68 87 100 85 100 65 C 100 48 78 47 78 62 C 78 72 90 74 92 66
+             M100 10 C140 10 160 40 145 65 C132 87 100 85 100 65
+             M100 65 L100 250
+             M85 250 C85 258 115 258 115 250
+             M70 100 C 78 130 78 170 70 200
+             M130 100 C122 130 122 170 130 200" stroke-linecap="round"/>
+  </svg>
+  <h1>Four strings.<br><em>One</em> voice.</h1>
+  <p>Carved from tone wood, shaped by centuries of acoustic craft, and brought to life in interactive 3D. Pull and release the strings to see physical wavy vibrations, or rotate the 3D violin in real time.</p>
+  <a href="#instrument" class="cue">
+    <span>Pull &amp; Pluck the Strings</span>
+  </a>
+</section>
+
+<!-- ================= INSTRUMENT / 3D DARK WOOD VIOLIN & PLAY/PLUCK SYNTH ================= -->
+<section class="instrument" id="instrument">
+  <div class="section-head reveal">
+    <div class="eyebrow">Interactive Acoustic Craft</div>
+    <h2>Violin Bow to Play &amp; Hand to Pluck</h2>
+    <p>Experience the violin both ways: Switch to <strong style="color:var(--amber);">Violin Bow Mode</strong> to strike and bow across the strings with dynamic acoustic vibrato and rosin sparks, or switch to <strong style="color:var(--maple);">Hand Mode</strong> to physically drag, stretch, and pluck each elastic string!</p>
+    
+    <!-- Mode Switch Control Bar -->
+    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-top:20px;">
+      <span style="font-family:'JetBrains Mono',monospace; font-size:0.78rem; font-weight:700; color:var(--parchment-dim); letter-spacing:0.06em;">MODE (or Press <kbd style="color:var(--amber);background:rgba(217,141,62,0.2);padding:2px 7px;border-radius:4px;border:1px solid rgba(217,141,62,0.3);">E</kbd>):</span>
+      <div class="mode-pill-group" style="display:inline-flex; gap:6px;">
+        <button class="mode-btn active" id="bannerModeBow" style="display:flex; align-items:center; gap:6px; padding:8px 18px; font-size:0.82rem; cursor:pointer;">
+          <span>🎻 VIOLIN BOW</span>
+        </button>
+        <button class="mode-btn" id="bannerModeHand" style="display:flex; align-items:center; gap:6px; padding:8px 18px; font-size:0.82rem; cursor:pointer;">
+          <span>✋ HAND PLUCK</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="instrument-grid">
+    
+    <!-- 3D Model Showcase Card -->
+    <div class="model-showcase-card reveal" id="modelCard">
+      <!-- Three.js Live Dark Wood 3D Violin Canvas -->
+      <div id="violin-canvas-container" style="width:100%; height:100%; position:absolute; inset:0;"></div>
+
+      <div class="acoustic-glow-ring" id="acousticRing"></div>
+
+      <!-- Hidden file input for custom GLB -->
+      <input type="file" id="glbFileInput" accept=".glb,.gltf" style="display:none;" />
+
+      <!-- HUD Header -->
+      <div class="model-hud">
+        <div class="model-badge">
+          <span class="dot"></span>
+          <span id="model-badge-text">3D DARK WOOD VIOLIN</span>
+        </div>
+        <div class="model-actions">
+          <button class="model-btn active" id="btnAutoRotate" title="Toggle Auto Spin">
+            <span>⟳ Spin</span>
+          </button>
+          <button class="model-btn" id="btnResetCamera" title="Reset Camera View">
+            <span>Reset</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Bottom HUD Hint -->
+      <div class="model-hint-bar">
+        <span id="hudPlayHint">🎻 Bow Mode Active: Glide bow across strings to strike &amp; play</span>
+      </div>
+    </div>
+
+    <!-- Physical Interactive Elastic Pull & Pluck Panel -->
+    <div class="strings-panel reveal">
+      <div class="strum-track-header">
+        <span>Elastic String Synthesizer</span>
+        <span class="mono" style="color:var(--amber);">Drag / Pull to bend string</span>
+      </div>
+
+      <!-- String 1: G3 -->
+      <div class="string-row" data-note="G3" data-freq="196.00" id="row-G3">
+        <div class="note-badge">
+          <div class="note-name">G</div>
+          <div class="string-num">IV</div>
+        </div>
+        <div class="string-canvas-holder">
+          <div class="string-pull-guide">← Drag &amp; Pull String →</div>
+          <svg viewBox="0 0 300 50" preserveAspectRatio="none">
+            <path class="string-line" d="M0,25 L300,25"/>
+          </svg>
+        </div>
+        <div class="freq-col">
+          <div class="freq">196.0 Hz</div>
+          <div class="pluck-btn-hint">G3 Low Bass</div>
+        </div>
+      </div>
+
+      <!-- String 2: D4 -->
+      <div class="string-row" data-note="D4" data-freq="293.66" id="row-D4">
+        <div class="note-badge">
+          <div class="note-name">D</div>
+          <div class="string-num">III</div>
+        </div>
+        <div class="string-canvas-holder">
+          <div class="string-pull-guide">← Drag &amp; Pull String →</div>
+          <svg viewBox="0 0 300 50" preserveAspectRatio="none">
+            <path class="string-line" d="M0,25 L300,25"/>
+          </svg>
+        </div>
+        <div class="freq-col">
+          <div class="freq">293.7 Hz</div>
+          <div class="pluck-btn-hint">D4 Warm Tenor</div>
+        </div>
+      </div>
+
+      <!-- String 3: A4 -->
+      <div class="string-row" data-note="A4" data-freq="440.00" id="row-A4">
+        <div class="note-badge">
+          <div class="note-name">A</div>
+          <div class="string-num">II</div>
+        </div>
+        <div class="string-canvas-holder">
+          <div class="string-pull-guide">← Drag &amp; Pull String →</div>
+          <svg viewBox="0 0 300 50" preserveAspectRatio="none">
+            <path class="string-line" d="M0,25 L300,25"/>
+          </svg>
+        </div>
+        <div class="freq-col">
+          <div class="freq">440.0 Hz</div>
+          <div class="pluck-btn-hint">A4 Tuning Pitch</div>
+        </div>
+      </div>
+
+      <!-- String 4: E5 -->
+      <div class="string-row" data-note="E5" data-freq="659.25" id="row-E5">
+        <div class="note-badge">
+          <div class="note-name">E</div>
+          <div class="string-num">I</div>
+        </div>
+        <div class="string-canvas-holder">
+          <div class="string-pull-guide">← Drag &amp; Pull String →</div>
+          <svg viewBox="0 0 300 50" preserveAspectRatio="none">
+            <path class="string-line" d="M0,25 L300,25"/>
+          </svg>
+        </div>
+        <div class="freq-col">
+          <div class="freq">659.3 Hz</div>
+          <div class="pluck-btn-hint">E5 Bright Treble</div>
+        </div>
+      </div>
+
+      <!-- Audio Engine Controls Bar -->
+      <div class="instrument-controls">
+        <button class="start-audio-btn" id="audioBtn">Enable Audio</button>
+        <div class="status-wrapper">
+          <span>Status:</span>
+          <span class="status-text" id="statusText">Pull any string</span>
+        </div>
+        <div class="vol-row">
+          <span>Vol</span>
+          <input type="range" id="volSlider" min="0" max="100" value="80" aria-label="Volume Slider">
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= ANATOMY HOTSPOT EXPLORER ================= -->
+<section id="anatomy">
+  <div class="section-head reveal">
+    <div class="eyebrow">Acoustic Architecture</div>
+    <h2>Every curve has a purpose.</h2>
+    <p>Over seventy individually carved components of seasoned spruce, flamed maple, and dense ebony assemble into an acoustic chamber capable of filling a concert hall.</p>
+  </div>
+
+  <div class="anatomy-wrap">
+    <div class="anatomy-preview-card reveal">
+      <div class="anatomy-svg-holder">
+        <svg class="anatomy-svg" viewBox="0 0 220 560" xmlns="http://www.w3.org/2000/svg">
+          <path d="M110 40
+                   C 60 40 55 90 70 120
+                   C 45 140 40 190 65 220
+                   C 40 250 40 300 70 320
+                   C 55 350 60 400 110 400
+                   C 160 400 165 350 150 320
+                   C 180 300 180 250 155 220
+                   C 180 190 175 140 150 120
+                   C 165 90 160 40 110 40 Z"
+                fill="#24150d" stroke="#d98d3e" stroke-width="1.8" opacity="0.85"/>
+          <rect x="104" y="40" width="12" height="230" fill="#140d09" opacity="0.9"/>
+          <rect x="98" y="10" width="24" height="34" rx="4" fill="#140d09" opacity="0.9"/>
+          <!-- Interactive Hotspot Targets -->
+          <circle class="hotspot" data-key="scroll" cx="110" cy="18" r="7"/>
+          <circle class="hotspot" data-key="pegbox" cx="110" cy="27" r="7"/>
+          <circle class="hotspot" data-key="nut" cx="110" cy="45" r="6"/>
+          <circle class="hotspot" data-key="fingerboard" cx="110" cy="150" r="7"/>
+          <circle class="hotspot" data-key="fholes" cx="96" cy="198" r="7"/>
+          <circle class="hotspot" data-key="bridge" cx="110" cy="255" r="7"/>
+          <circle class="hotspot" data-key="tailpiece" cx="110" cy="330" r="7"/>
+          <circle class="hotspot" data-key="chinrest" cx="145" cy="360" r="7"/>
+        </svg>
+      </div>
+      <div style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--parchment-dim);">
+        Tap any golden node on the violin blueprint
+      </div>
+    </div>
+
+    <div class="anatomy-list reveal" id="anatomyList">
+      <div class="anatomy-item" data-key="scroll">
+        <div class="row"><h4>Scroll</h4><span class="num">01</span></div>
+        <p>The ornamental spiral carved at the very top of the pegbox — every master luthier's signature flourish, requiring expert chisel control.</p>
+      </div>
+      <div class="anatomy-item" data-key="pegbox">
+        <div class="row"><h4>Pegbox &amp; Pegs</h4><span class="num">02</span></div>
+        <p>Four tapered wooden pegs, friction-fit into the pegbox, which the violinist turns to bring each string into pitch.</p>
+      </div>
+      <div class="anatomy-item" data-key="nut">
+        <div class="row"><h4>Nut</h4><span class="num">03</span></div>
+        <p>A small ridge of ebony that spaces the strings precisely and marks the upper terminal of the vibrating string length.</p>
+      </div>
+      <div class="anatomy-item" data-key="fingerboard">
+        <div class="row"><h4>Fingerboard</h4><span class="num">04</span></div>
+        <p>A glossy strip of high-density African ebony that players press strings against to stop vibrations and alter pitch.</p>
+      </div>
+      <div class="anatomy-item" data-key="fholes">
+        <div class="row"><h4>F-Holes</h4><span class="num">05</span></div>
+        <p>Two caligraphically carved openings in the spruce top plate that allow the internal air resonance to project forward.</p>
+      </div>
+      <div class="anatomy-item" data-key="bridge">
+        <div class="row"><h4>Acoustic Bridge</h4><span class="num">06</span></div>
+        <p>A thin, carved piece of figured Bosnian maple held purely under string tension that transfers string energy directly into the top plate.</p>
+      </div>
+      <div class="anatomy-item" data-key="tailpiece">
+        <div class="row"><h4>Tailpiece</h4><span class="num">07</span></div>
+        <p>Anchors the bottom of the four strings and houses micro-tuners for precise intonation adjustments.</p>
+      </div>
+      <div class="anatomy-item" data-key="chinrest">
+        <div class="row"><h4>Chin Rest</h4><span class="num">08</span></div>
+        <p>Clamped securely over the lower bout, allowing the violinist to anchor the instrument comfortably under the jaw.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HISTORY ================= -->
+<section id="history" style="background:var(--ebony-card);border-top:1px solid var(--line);">
+  <div class="section-head reveal">
+    <div class="eyebrow">Five Centuries of Craft</div>
+    <h2>A shape perfected in the Renaissance.</h2>
+    <p>The violin arrived at its iconic arching and outline in 16th-century Italy and has stood unchanged ever since.</p>
+  </div>
+
+  <div class="timeline reveal">
+    <div class="tl-item">
+      <div class="date">c. 1550</div>
+      <div><h4>Cremona, Italy</h4><p>Andrea Amati establishes the four-string violin form — arched top and back plates, f-holes, and a curved bridge that modern luthiers still follow.</p></div>
+    </div>
+    <div class="tl-item">
+      <div class="date">1666 – 1737</div>
+      <div><h4>The Stradivari Workshop</h4><p>Antonio Stradivari refines the golden-ratio outline and varnish chemistry across six decades; hundreds of his instruments remain among the most coveted on earth.</p></div>
+    </div>
+    <div class="tl-item">
+      <div class="date">1698 – 1744</div>
+      <div><h4>Giuseppe Guarneri "del Gesù"</h4><p>A rival Cremonese master whose bolder carving created deep, explosive sonic power — favored by legendary virtuosi such as Niccolò Paganini.</p></div>
+    </div>
+    <div class="tl-item">
+      <div class="date">19th Century</div>
+      <div><h4>Symphonic Evolution</h4><p>Longer fingerboards, steeper neck angles, and higher bridge heights are introduced to project sound across immense concert halls.</p></div>
+    </div>
+    <div class="tl-item">
+      <div class="date">Present Day</div>
+      <div><h4>Handcrafted Living Tradition</h4><p>Master luthiers still carve spruce tops and maple backs with gouges and thumb planes, tuning each plate by finger tap and acoustic ear.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="top">
+    <span class="mark">Sei Corde · Zane's 3D Violin Experience</span>
+    <span class="meta">Connected to Zane Portfolio · WebGL 3D Model &amp; Karplus-Strong Audio Engine</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- SCROLL REVEAL OBSERVER ---------------- */
+  var reveals = document.querySelectorAll('.reveal');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.12});
+  reveals.forEach(function(el){ io.observe(el); });
+
+  /* ---------------- ANATOMY HOTSPOT INTERACTIONS ---------------- */
+  var items = document.querySelectorAll('.anatomy-item');
+  var hotspots = document.querySelectorAll('.hotspot');
+
+  function setActiveHotspot(key){
+    items.forEach(function(it){ it.classList.toggle('open', it.dataset.key === key); });
+    hotspots.forEach(function(h){ h.classList.toggle('active', h.dataset.key === key); });
+  }
+  items.forEach(function(it){
+    it.addEventListener('click', function(){
+      var isOpen = it.classList.contains('open');
+      setActiveHotspot(isOpen ? null : it.dataset.key);
+    });
+  });
+  hotspots.forEach(function(h){
+    h.addEventListener('click', function(){ setActiveHotspot(h.dataset.key); });
+    h.addEventListener('mouseenter', function(){ setActiveHotspot(h.dataset.key); });
+  });
+
+  /* ---------------- WEB AUDIO SYNTHESIS ENGINE ---------------- */
+  var ctx = null;
+  var masterGain = null;
+  var volSlider = document.getElementById('volSlider');
+  var statusText = document.getElementById('statusText');
+  var audioBtn = document.getElementById('audioBtn');
+  var acousticRing = document.getElementById('acousticRing');
+
+  function ensureAudioCtx(){
+    if(!ctx){
+      try {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = ctx.createGain();
+        var val = volSlider ? parseFloat(volSlider.value) : 100;
+        masterGain.gain.value = (val / 100) * 1.0;
+        masterGain.connect(ctx.destination);
+      } catch(err){ console.warn("AudioContext init:", err); }
+    }
+    if(ctx && ctx.state === 'suspended'){ ctx.resume(); }
+  }
+
+  audioBtn.addEventListener('click', function(){
+    ensureAudioCtx();
+    audioBtn.textContent = 'Sound Active';
+    audioBtn.disabled = true;
+    statusText.textContent = 'Audio Ready!';
+  });
+
+  volSlider.addEventListener('input', function(){
+    if(masterGain){ masterGain.gain.value = (volSlider.value/100) * 0.9; }
+  });
+
+  // Physical Karplus-Strong Plucked String Synthesis (For Hand Pluck Mode)
+  function generatePluckBuffer(freq, intensity){
+    var sampleRate = ctx.sampleRate;
+    var duration = 2.5;
+    var N = Math.max(2, Math.round(sampleRate/freq));
+    var ring = new Float32Array(N);
+    for(var i=0; i<N; i++){ ring[i] = (Math.random() * 2 - 1) * Math.min(intensity, 1.3); }
+    
+    var total = Math.floor(sampleRate * duration);
+    var out = new Float32Array(total);
+    var decay = 0.9968;
+    var idx = 0;
+    for(var n=0; n<total; n++){
+      var next = ring[(idx+1)%N];
+      var cur = ring[idx];
+      out[n] = cur;
+      ring[idx] = decay * 0.5 * (cur + next);
+      idx = (idx+1)%N;
+    }
+    var buf = ctx.createBuffer(1, total, sampleRate);
+    buf.copyToChannel(out, 0);
+    return buf;
+  }
+
+  function playPluckSound(freq, intensity){
+    ensureAudioCtx();
+    if(!ctx) return;
+    var intRatio = Math.max(0.4, Math.min(intensity || 1.0, 1.8));
+    var buf = generatePluckBuffer(freq, intRatio);
+    var src = ctx.createBufferSource();
+    src.buffer = buf;
+    
+    var filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 3500 + intRatio * 2000;
+
+    var gain = ctx.createGain();
+    gain.gain.value = Math.min(1.2, intRatio);
+
+    src.connect(filter);
+    filter.connect(gain);
+    gain.connect(masterGain);
+
+    src.start();
+    src.stop(ctx.currentTime + 2.5);
+
+    // Trigger visual 3D acoustic resonance ripple
+    if(acousticRing){
+      acousticRing.classList.remove('plucked');
+      void acousticRing.offsetWidth;
+      acousticRing.classList.add('plucked');
+    }
+  }
+
+  /* ---------------- SMOOTH ACOUSTIC VIOLIN BOW ENGINE ---------------- */
+  var smoothBowVoice = {
+    osc: null,
+    lfo: null,
+    lfoGain: null,
+    bodyFilter1: null,
+    bodyFilter2: null,
+    gain: null,
+    isPlaying: false
+  };
+
+  function initSmoothBowVoice(){
+    if(!ctx || smoothBowVoice.osc) return;
+
+    try {
+      // Create authentic Cremonese violin acoustic harmonic wave table
+      var n = 24;
+      var real = new Float32Array(n);
+      var imag = new Float32Array(n);
+      real[0] = 0; imag[0] = 0;
+      var violinHarmonics = [0, 1.0, 0.75, 0.55, 0.38, 0.28, 0.18, 0.12, 0.08, 0.05, 0.03, 0.02];
+      for(var i=1; i<violinHarmonics.length; i++){
+        imag[i] = violinHarmonics[i];
+      }
+      var violinWave = ctx.createPeriodicWave(real, imag);
+
+      smoothBowVoice.osc = ctx.createOscillator();
+      smoothBowVoice.osc.setPeriodicWave(violinWave);
+      smoothBowVoice.osc.frequency.setValueAtTime(440, ctx.currentTime);
+
+      // Natural 5.2 Hz gentle violin vibrato
+      smoothBowVoice.lfo = ctx.createOscillator();
+      smoothBowVoice.lfoGain = ctx.createGain();
+      smoothBowVoice.lfo.frequency.setValueAtTime(5.2, ctx.currentTime);
+      smoothBowVoice.lfoGain.gain.setValueAtTime(2.4, ctx.currentTime);
+      smoothBowVoice.lfo.connect(smoothBowVoice.osc.frequency);
+      smoothBowVoice.lfo.start();
+
+      // Wood body acoustic formant resonance
+      smoothBowVoice.bodyFilter1 = ctx.createBiquadFilter();
+      smoothBowVoice.bodyFilter1.type = 'bandpass';
+      smoothBowVoice.bodyFilter1.frequency.setValueAtTime(480, ctx.currentTime);
+      smoothBowVoice.bodyFilter1.Q.setValueAtTime(1.8, ctx.currentTime);
+
+      smoothBowVoice.bodyFilter2 = ctx.createBiquadFilter();
+      smoothBowVoice.bodyFilter2.type = 'lowpass';
+      smoothBowVoice.bodyFilter2.frequency.setValueAtTime(3200, ctx.currentTime);
+
+      smoothBowVoice.gain = ctx.createGain();
+      smoothBowVoice.gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+
+      smoothBowVoice.osc.connect(smoothBowVoice.bodyFilter1);
+      smoothBowVoice.bodyFilter1.connect(smoothBowVoice.bodyFilter2);
+      smoothBowVoice.bodyFilter2.connect(smoothBowVoice.gain);
+      smoothBowVoice.gain.connect(masterGain);
+
+      smoothBowVoice.osc.start();
+    } catch(err){ console.warn("Smooth bow voice init:", err); }
+  }
+
+  // Smooth continuous singing bowing tone
+  function updateSmoothBow(freq, intensity, noteName){
+    ensureAudioCtx();
+    initSmoothBowVoice();
+    if(!smoothBowVoice.gain || !ctx) return;
+
+    var now = ctx.currentTime;
+    var vol = Math.max(0.35, Math.min(intensity || 0.85, 1.2));
+
+    // Smooth portamento pitch glide to string note (Zero clicks/glitches!)
+    smoothBowVoice.osc.frequency.setTargetAtTime(freq, now, 0.038);
+    smoothBowVoice.lfoGain.gain.setTargetAtTime(freq * 0.007, now, 0.05);
+
+    // Smooth swelling singing volume
+    smoothBowVoice.gain.gain.setTargetAtTime(vol * 0.85, now, 0.04);
+    smoothBowVoice.isPlaying = true;
+
+    if(acousticRing){
+      acousticRing.classList.remove('plucked');
+      void acousticRing.offsetWidth;
+      acousticRing.classList.add('plucked');
+    }
+  }
+
+  function releaseSmoothBow(){
+    if(!smoothBowVoice.gain || !ctx) return;
+    var now = ctx.currentTime;
+    smoothBowVoice.gain.gain.setTargetAtTime(0.0001, now, 0.085);
+    smoothBowVoice.isPlaying = false;
+  }
+
+  function playBowedSound(freq, intensity){
+    updateSmoothBow(freq, intensity);
+    setTimeout(function(){ releaseSmoothBow(); }, 700);
+  }
+
+  /* ---------------- INTERACTIVE STRING PULL & WAVY PLUCK ENGINE ---------------- */
+  var stringRows = document.querySelectorAll('.string-row');
+
+  stringRows.forEach(function(row){
+    var freq = parseFloat(row.dataset.freq);
+    var note = row.dataset.note;
+    var path = row.querySelector('.string-line');
+    var canvasHolder = row.querySelector('.string-canvas-holder');
+    var W = 300, H0 = 25; // center height in viewBox
+    
+    // Physics state
+    var isPulling = false;
+    var pullX = 150, pullY = H0;
+    var amp = 0, phase = 0, decayRate = 0, running = false, rafId = null;
+
+    // Render wavy vibrating oscillation
+    function renderWavyFrame(){
+      if(!running) return;
+      phase += 0.95;
+      amp *= decayRate;
+
+      if(amp < 0.12){
+        amp = 0;
+        running = false;
+        path.setAttribute('d', 'M0,' + H0 + ' L' + W + ',' + H0);
+        return;
+      }
+
+      var d = 'M0,' + H0 + ' ';
+      var segs = 32;
+      for(var i=0; i<=segs; i++){
+        var x = (W / segs) * i;
+        var r = i / segs; // 0 to 1
+        
+        // Multi-harmonic standing waves: fundamental + 2nd harmonic + 3rd ripple
+        var fund = Math.sin(Math.PI * r); 
+        var harm2 = Math.sin(Math.PI * 2 * r) * 0.4;
+        var harm3 = Math.sin(Math.PI * 3 * r) * 0.2;
+
+        var waveDisp = (Math.sin(phase * 0.3 + i * 0.8) * fund + 
+                        Math.cos(phase * 0.6 + i * 1.6) * harm2 + 
+                        Math.sin(phase * 0.9 + i * 2.4) * harm3) * amp;
+        
+        var y = H0 + waveDisp;
+        d += 'L' + x.toFixed(1) + ',' + y.toFixed(2) + ' ';
+      }
+
+      path.setAttribute('d', d);
+      rafId = requestAnimationFrame(renderWavyFrame);
+    }
+
+    function triggerWavyRelease(amplitude){
+      cancelAnimationFrame(rafId);
+      amp = amplitude;
+      decayRate = 0.966;
+      running = true;
+      rafId = requestAnimationFrame(renderWavyFrame);
+    }
+    row._triggerWavyRelease = triggerWavyRelease;
+
+    // Interactive Drag / Pull Event Handlers
+    function updatePullVisual(e){
+      if(!isPulling) return;
+      var rect = canvasHolder.getBoundingClientRect();
+      var rawX = e.clientX - rect.left;
+      var rawY = e.clientY - rect.top;
+
+      // Scale to SVG 300x50 coordinates
+      pullX = Math.max(20, Math.min(280, (rawX / rect.width) * W));
+      var scaledY = (rawY / rect.height) * 50;
+      pullY = Math.max(4, Math.min(46, scaledY));
+
+      // Draw elastic bent string with bezier curvature under finger pull
+      var d = 'M 0,' + H0 + ' Q ' + pullX.toFixed(1) + ',' + pullY.toFixed(1) + ' ' + W + ',' + H0;
+      path.setAttribute('d', d);
+
+      var tension = Math.abs(pullY - H0);
+      statusText.textContent = note + ' — Pulling (Tension: ' + Math.round(tension * 5) + '%)';
+    }
+
+    function onPointerDown(e){
+      ensureAudioCtx();
+      e.preventDefault();
+
+      if(activeCursorMode === 'bow'){
+        isBowMouseDown = true;
+        updateSmoothBow(freq, 1.0, note);
+        triggerWavyRelease(15);
+        statusText.textContent = '🎻 Bowing ' + note + ' (' + freq + ' Hz) — Smooth Sustained Tone';
+
+        // Spawn Rosin sparks
+        for(var s=0; s<4; s++){
+          rosinSparks.push({
+            x: e.clientX + (Math.random() - 0.5) * 18,
+            y: e.clientY + (Math.random() - 0.5) * 18,
+            vx: (Math.random() - 0.5) * 5,
+            vy: -1 - Math.random() * 3,
+            size: 2 + Math.random() * 3,
+            alpha: 1.0,
+            color: Math.random() > 0.4 ? '#f3d79b' : '#d98d3e'
+          });
+        }
+        return;
+      }
+
+      isPulling = true;
+      running = false;
+      cancelAnimationFrame(rafId);
+      row.classList.add('pulling');
+      
+      canvasHolder.setPointerCapture(e.pointerId);
+      updatePullVisual(e);
+    }
+
+    function onPointerMove(e){
+      if(isPulling && activeCursorMode === 'hand'){
+        updatePullVisual(e);
+      }
+    }
+
+    function onPointerUp(e){
+      if(!isPulling) return;
+      isPulling = false;
+      row.classList.remove('pulling');
+
+      try{ canvasHolder.releasePointerCapture(e.pointerId); }catch(err){}
+
+      // Calculate deflection displacement
+      var displacement = Math.abs(pullY - H0);
+      var pluckForce = Math.max(6, Math.min(displacement * 1.1, 24));
+      var soundIntensity = Math.max(0.6, displacement / 12);
+
+      // Play authentic sound & trigger physics wavy recoil
+      playPluckSound(freq, soundIntensity);
+      triggerWavyRelease(pluckForce);
+
+      statusText.textContent = '✋ Plucked ' + note + ' (' + freq + ' Hz)!';
+    }
+
+    canvasHolder.addEventListener('pointerdown', onPointerDown);
+    canvasHolder.addEventListener('pointermove', onPointerMove);
+    canvasHolder.addEventListener('pointerup', onPointerUp);
+    canvasHolder.addEventListener('pointercancel', onPointerUp);
+
+    // Also support direct row click
+    row.addEventListener('click', function(e){
+      ensureAudioCtx();
+      if(e.target === canvasHolder || canvasHolder.contains(e.target)) return;
+      if(activeCursorMode === 'bow'){
+        playBowedSound(freq, 1.3);
+      } else {
+        playPluckSound(freq, 1.1);
+      }
+      triggerWavyRelease(15);
+      statusText.textContent = (activeCursorMode === 'bow' ? '🎻 Bowed ' : '✋ Plucked ') + note + '!';
+    });
+  });
+
+  /* ---------------- 3D DARK WOOD VIOLIN (THREE.JS) ---------------- */
+  var autoRotateBtn = document.getElementById('btnAutoRotate');
+  var resetCameraBtn = document.getElementById('btnResetCamera');
+  var isAutoSpinning = true;
+
+  function initDarkWoodViolin(){
+    var container = document.getElementById('violin-canvas-container');
+    if(!container || !window.THREE) return;
+    container.innerHTML = '';
+
+    var width = container.clientWidth || 580;
+    var height = container.clientHeight || 580;
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
+    camera.position.set(0, 0.1, 3.1);
+
+    var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.5;
+    container.appendChild(renderer.domElement);
+
+    var controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 1.6;
+
+    if(autoRotateBtn){
+      autoRotateBtn.addEventListener('click', function(){
+        isAutoSpinning = !isAutoSpinning;
+        controls.autoRotate = isAutoSpinning;
+        autoRotateBtn.classList.toggle('active', isAutoSpinning);
+      });
+    }
+
+    if(resetCameraBtn){
+      resetCameraBtn.addEventListener('click', function(){
+        camera.position.set(0, 0.1, 3.1);
+        controls.target.set(0, 0, 0);
+        controls.update();
+      });
+    }
+
+    window.addEventListener('resize', function(){
+      if(!container) return;
+      var w = container.clientWidth;
+      var h = container.clientHeight;
+      if(w > 0 && h > 0){
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      }
+    });
+
+    // Realistic Warm Studio Lighting
+    var ambientLight = new THREE.AmbientLight(0xfff5ea, 1.8);
+    scene.add(ambientLight);
+    var keyLight = new THREE.DirectionalLight(0xfff0dd, 2.8);
+    keyLight.position.set(3, 6, 5);
+    scene.add(keyLight);
+    var fillLight = new THREE.DirectionalLight(0xd98d3e, 1.6);
+    fillLight.position.set(-4, 2, -3);
+    scene.add(fillLight);
+    var rimLight = new THREE.DirectionalLight(0xffffff, 2.2);
+    rimLight.position.set(0, -5, -4);
+    scene.add(rimLight);
+
+    // Procedural Rich Dark Brown Wood Grain Texture
+    function createWoodTexture() {
+      var canvas = document.createElement('canvas');
+      canvas.width = 1024;
+      canvas.height = 1024;
+      var ctx = canvas.getContext('2d');
+
+      var grad = ctx.createLinearGradient(0, 0, 1024, 1024);
+      grad.addColorStop(0, '#1e0c04');
+      grad.addColorStop(0.25, '#351407');
+      grad.addColorStop(0.5, '#4a1e0b');
+      grad.addColorStop(0.8, '#2a0e05');
+      grad.addColorStop(1, '#130501');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1024, 1024);
+
+      ctx.lineWidth = 1.2;
+      for (var i = 0; i < 400; i++) {
+        var x = Math.random() * 1024;
+        var alpha = 0.03 + Math.random() * 0.07;
+        ctx.strokeStyle = (i % 2 === 0) ? `rgba(12, 4, 1, ${alpha * 1.3})` : `rgba(180, 95, 40, ${alpha * 0.65})`;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.bezierCurveTo(
+          x + Math.sin(i * 0.05) * 35, 300,
+          x - Math.cos(i * 0.05) * 35, 700,
+          x + Math.sin(i * 0.02) * 20, 1024
+        );
+        ctx.stroke();
+      }
+
+      for (var y = 0; y < 1024; y += 12) {
+        var rayAlpha = 0.035 + Math.sin(y * 0.08) * 0.025;
+        ctx.fillStyle = `rgba(210, 130, 60, ${rayAlpha})`;
+        ctx.fillRect(0, y, 1024, 6);
+      }
+
+      var tex = new THREE.CanvasTexture(canvas);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      return tex;
+    }
+
+    var woodTex = createWoodTexture();
+    var woodMat = new THREE.MeshStandardMaterial({
+      map: woodTex,
+      roughness: 0.18,
+      metalness: 0.06,
+      bumpMap: woodTex,
+      bumpScale: 0.003
+    });
+
+    var ebonyMat = new THREE.MeshStandardMaterial({ color: 0x121214, roughness: 0.18, metalness: 0.15 });
+    var bridgeMat = new THREE.MeshStandardMaterial({ color: 0xd9a566, roughness: 0.45, metalness: 0.05 });
+    var stringMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.1, metalness: 0.95 });
+
+    var group = new THREE.Group();
+
+    // 1. Violin Body (Soundboard & Backplate Contour)
+    var bodyShape = new THREE.Shape();
+    bodyShape.moveTo(0, 0.85);
+    bodyShape.bezierCurveTo(0.48, 0.85, 0.58, 0.48, 0.42, 0.22);
+    bodyShape.bezierCurveTo(0.32, 0.08, 0.32, -0.08, 0.44, -0.22);
+    bodyShape.bezierCurveTo(0.62, -0.48, 0.52, -0.88, 0, -0.88);
+    bodyShape.bezierCurveTo(-0.52, -0.88, -0.62, -0.48, -0.44, -0.22);
+    bodyShape.bezierCurveTo(-0.32, -0.08, -0.32, 0.08, -0.42, 0.22);
+    bodyShape.bezierCurveTo(-0.58, 0.48, -0.48, 0.85, 0, 0.85);
+    bodyShape.closePath();
+
+    var extrudeSettings = { depth: 0.16, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.02, bevelThickness: 0.02 };
+    var bodyGeom = new THREE.ExtrudeGeometry(bodyShape, extrudeSettings);
+    bodyGeom.center();
+    var bodyMesh = new THREE.Mesh(bodyGeom, woodMat);
+    group.add(bodyMesh);
+
+    // 2. Neck
+    var neckMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.048, 0.9, 16), woodMat);
+    neckMesh.position.set(0, 0.85, 0.05);
+    group.add(neckMesh);
+
+    // 3. Ebony Fingerboard
+    var fbMesh = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.88, 0.03), ebonyMat);
+    fbMesh.position.set(0, 0.58, 0.12);
+    group.add(fbMesh);
+
+    // 4. Carved Wooden Bridge
+    var bridgeMesh = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.13, 0.025), bridgeMat);
+    bridgeMesh.position.set(0, -0.05, 0.14);
+    group.add(bridgeMesh);
+
+    // 5. Ebony Tailpiece
+    var tailpieceShape = new THREE.Shape();
+    tailpieceShape.moveTo(-0.065, -0.75);
+    tailpieceShape.lineTo(0.065, -0.75);
+    tailpieceShape.lineTo(0.03, -0.35);
+    tailpieceShape.lineTo(-0.03, -0.35);
+    tailpieceShape.closePath();
+    var tailpieceGeom = new THREE.ExtrudeGeometry(tailpieceShape, { depth: 0.03, bevelEnabled: true, bevelSize: 0.008, bevelThickness: 0.008 });
+    var tailpieceMesh = new THREE.Mesh(tailpieceGeom, ebonyMat);
+    tailpieceMesh.position.set(0, 0, 0.11);
+    group.add(tailpieceMesh);
+
+    // 6. Ebony Chinrest
+    var chinrestGeom = new THREE.BoxGeometry(0.22, 0.26, 0.05);
+    var chinrestMesh = new THREE.Mesh(chinrestGeom, ebonyMat);
+    chinrestMesh.position.set(-0.16, -0.62, 0.12);
+    chinrestMesh.rotation.z = -0.35;
+    group.add(chinrestMesh);
+
+    // 7. F-Holes
+    var fHoleGeom = new THREE.CylinderGeometry(0.022, 0.022, 0.24, 8);
+    var fHoleMat = new THREE.MeshBasicMaterial({ color: 0x050302 });
+    var f1 = new THREE.Mesh(fHoleGeom, fHoleMat);
+    f1.position.set(0.16, 0.0, 0.11);
+    f1.rotation.z = -0.22;
+    group.add(f1);
+
+    var f2 = new THREE.Mesh(fHoleGeom, fHoleMat);
+    f2.position.set(-0.16, 0.0, 0.11);
+    f2.rotation.z = 0.22;
+    group.add(f2);
+
+    // 8. 4 Steel Strings
+    var stringX = [-0.035, -0.012, 0.012, 0.035];
+    for(var s=0; s<4; s++){
+      var strMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.003, 1.62, 8), stringMat);
+      strMesh.position.set(stringX[s], 0.35, 0.14);
+      group.add(strMesh);
+    }
+
+    // 9. Pegbox & Scroll Spiral
+    var pegboxMesh = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.28, 0.12), woodMat);
+    pegboxMesh.position.set(0, 1.25, 0.05);
+    group.add(pegboxMesh);
+
+    var scrollGeom = new THREE.TorusGeometry(0.06, 0.035, 12, 24, Math.PI * 1.8);
+    var scrollMesh = new THREE.Mesh(scrollGeom, woodMat);
+    scrollMesh.position.set(0, 1.42, 0.05);
+    scrollMesh.rotation.y = Math.PI / 2;
+    group.add(scrollMesh);
+
+    // 10. 4 Ebony Tuning Pegs
+    for (var p = 0; p < 4; p++) {
+      var pegMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.22, 12), ebonyMat);
+      pegMesh.rotation.z = Math.PI / 2;
+      pegMesh.position.set(0, 1.15 + p * 0.06, (p % 2 === 0 ? 0.08 : 0.02));
+      group.add(pegMesh);
+    }
+
+    group.position.set(0, -0.2, 0);
+    scene.add(group);
+
+    function animate(){
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+  }
+
+  // Run Three.js immediately
+  initDarkWoodViolin();
+
+  /* ==========================================
+     Violin Bow Cursor & Striking Engine
+     ========================================== */
+  var activeCursorMode = 'bow'; // Default to Bow Mode
+  var bowCanvas = document.getElementById('bowCursorCanvas');
+  var bowCtx = bowCanvas ? bowCanvas.getContext('2d') : null;
+
+  function resizeBowCanvas(){
+    if(!bowCanvas) return;
+    bowCanvas.width = window.innerWidth;
+    bowCanvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeBowCanvas);
+  resizeBowCanvas();
+
+  var bowMouse = { x: window.innerWidth/2, y: window.innerHeight/2 };
+  var bowPrevMouse = { x: window.innerWidth/2, y: window.innerHeight/2 };
+  var bowVel = { x: 0, y: 0 };
+  var rosinSparks = [];
+  var lastStrikeTime = 0;
+
+  var modeHandBtn = document.getElementById('modeHandBtn');
+  var modeBowBtn = document.getElementById('modeBowBtn');
+  var bannerModeBow = document.getElementById('bannerModeBow');
+  var bannerModeHand = document.getElementById('bannerModeHand');
+  var hudPlayHint = document.getElementById('hudPlayHint');
+
+  var isBowMouseDown = false;
+  var bowLowerProgress = 0.0;
+
+  function setCursorMode(mode){
+    activeCursorMode = mode;
+    ensureAudioCtx();
+    if(mode === 'bow'){
+      if(modeHandBtn) modeHandBtn.classList.remove('active');
+      if(modeBowBtn) modeBowBtn.classList.add('active');
+      if(bannerModeHand) bannerModeHand.classList.remove('active');
+      if(bannerModeBow) bannerModeBow.classList.add('active');
+      if(hudPlayHint) hudPlayHint.textContent = '🎻 Bow Mode: Click or Hold to lower bow onto strings (Press "E" to switch)';
+      if(bowCanvas) bowCanvas.style.display = 'block';
+      document.body.style.cursor = 'none';
+      if(statusText) statusText.textContent = '🎻 Violin Bow Active — Click or Hold to lower bow onto strings! (Press "E" to switch)';
+    } else {
+      if(modeBowBtn) modeBowBtn.classList.remove('active');
+      if(modeHandBtn) modeHandBtn.classList.add('active');
+      if(bannerModeBow) bannerModeBow.classList.remove('active');
+      if(bannerModeHand) bannerModeHand.classList.add('active');
+      if(hudPlayHint) hudPlayHint.textContent = '✋ Hand Mode: Drag strings to bend tension & pluck (Press "E" to switch)';
+      if(bowCanvas) bowCanvas.style.display = 'none';
+      document.body.style.cursor = 'default';
+      if(statusText) statusText.textContent = '✋ Hand Active — Drag & pull strings to bend tension, release to pluck! (Press "E" to switch)';
+    }
+  }
+
+  if(modeHandBtn) modeHandBtn.addEventListener('click', function(e){ e.stopPropagation(); setCursorMode('hand'); });
+  if(modeBowBtn) modeBowBtn.addEventListener('click', function(e){ e.stopPropagation(); setCursorMode('bow'); });
+  if(bannerModeHand) bannerModeHand.addEventListener('click', function(e){ e.stopPropagation(); setCursorMode('hand'); });
+  if(bannerModeBow) bannerModeBow.addEventListener('click', function(e){ e.stopPropagation(); setCursorMode('bow'); });
+
+  // Keyboard shortcut 'E' to switch between Hand and Bow modes!
+  window.addEventListener('keydown', function(e){
+    if(e.key === 'e' || e.key === 'E'){
+      if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      ensureAudioCtx();
+      setCursorMode(activeCursorMode === 'bow' ? 'hand' : 'bow');
+    }
+  });
+
+  // Auto-unlock audio on any user interaction
+  window.addEventListener('pointerdown', ensureAudioCtx, { once: false });
+  window.addEventListener('click', ensureAudioCtx, { once: false });
+  window.addEventListener('keydown', ensureAudioCtx, { once: false });
+
+  // Initialize in Bow mode
+  setCursorMode('bow');
+
+  window.addEventListener('mousemove', function(e){
+    bowMouse.x = e.clientX;
+    bowMouse.y = e.clientY;
+    
+    if(activeCursorMode === 'bow'){
+      checkBowStringIntersections(e, false);
+    }
+  });
+
+  window.addEventListener('mousedown', function(e){
+    ensureAudioCtx();
+    if(activeCursorMode === 'bow'){
+      isBowMouseDown = true;
+      checkBowStringIntersections(e, true);
+    }
+  });
+
+  var currentBowedRow = null;
+
+  window.addEventListener('mouseup', function(){
+    isBowMouseDown = false;
+    if(activeCursorMode === 'bow'){
+      releaseSmoothBow();
+      currentBowedRow = null;
+    }
+  });
+
+  window.addEventListener('mouseleave', function(){
+    isBowMouseDown = false;
+    if(activeCursorMode === 'bow'){
+      releaseSmoothBow();
+      currentBowedRow = null;
+    }
+  });
+
+  // 3D Canvas Direct Interaction (Click or Bow over 3D Violin)
+  var violinCanvas = document.getElementById('violin-canvas-container');
+  var violinNotes = [
+    { note: 'G3', freq: 196.00 },
+    { note: 'D4', freq: 293.66 },
+    { note: 'A4', freq: 440.00 },
+    { note: 'E5', freq: 659.25 }
+  ];
+  var noteCycleIdx = 0;
+
+  if(violinCanvas){
+    violinCanvas.addEventListener('mousedown', function(e){
+      ensureAudioCtx();
+      var item = violinNotes[noteCycleIdx % violinNotes.length];
+      noteCycleIdx++;
+      if(activeCursorMode === 'bow'){
+        isBowMouseDown = true;
+        updateSmoothBow(item.freq, 1.1, item.note);
+        statusText.textContent = '🎻 Bowing ' + item.note + ' (' + item.freq + ' Hz) on 3D Dark Wood Violin';
+
+        // Spawn Rosin sparks on 3D canvas
+        for(var s=0; s<6; s++){
+          rosinSparks.push({
+            x: e.clientX + (Math.random() - 0.5) * 25,
+            y: e.clientY + (Math.random() - 0.5) * 25,
+            vx: (Math.random() - 0.5) * 6,
+            vy: -1 - Math.random() * 4,
+            size: 2.5 + Math.random() * 4,
+            alpha: 1.0,
+            color: Math.random() > 0.4 ? '#f3d79b' : '#d98d3e'
+          });
+        }
+      } else {
+        playPluckSound(item.freq, 1.3);
+        statusText.textContent = '✋ Plucked ' + item.note + ' (' + item.freq + ' Hz) on 3D Dark Wood Violin!';
+      }
+    });
+
+    violinCanvas.addEventListener('mouseup', function(){
+      if(activeCursorMode === 'bow'){
+        releaseSmoothBow();
+      }
+    });
+  }
+
+  function checkBowStringIntersections(e, forceStrike){
+    if(!isBowMouseDown && !forceStrike){
+      if(smoothBowVoice.isPlaying){
+        releaseSmoothBow();
+        currentBowedRow = null;
+      }
+      return;
+    }
+
+    var speed = Math.hypot(e.clientX - bowPrevMouse.x, e.clientY - bowPrevMouse.y);
+    var foundRow = null;
+
+    stringRows.forEach(function(row){
+      var rect = row.getBoundingClientRect();
+      if(
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom
+      ){
+        foundRow = row;
+      }
+    });
+
+    if(foundRow){
+      var freq = parseFloat(foundRow.dataset.freq);
+      var note = foundRow.dataset.note;
+
+      // Rich continuous acoustic singing tone
+      updateSmoothBow(freq, 0.8 + Math.min(0.35, speed * 0.03), note);
+
+      if(foundRow._triggerWavyRelease){
+        foundRow._triggerWavyRelease(Math.min(14, 6 + speed * 0.3));
+      }
+
+      // Smooth gentle golden rosin sparks
+      var now = Date.now();
+      if(now - lastStrikeTime > 80){
+        lastStrikeTime = now;
+        for(var s=0; s<3; s++){
+          rosinSparks.push({
+            x: e.clientX + (Math.random() - 0.5) * 18,
+            y: e.clientY + (Math.random() - 0.5) * 18,
+            vx: (Math.random() - 0.5) * 4,
+            vy: -1 - Math.random() * 3,
+            size: 2 + Math.random() * 3,
+            alpha: 0.9,
+            color: Math.random() > 0.4 ? '#f3d79b' : '#d98d3e'
+          });
+        }
+      }
+
+      statusText.textContent = '🎻 Bowing ' + note + ' (' + freq + ' Hz) — Smooth Sustained Tone';
+      currentBowedRow = foundRow;
+    } else {
+      if(currentBowedRow){
+        releaseSmoothBow();
+        currentBowedRow = null;
+      }
+    }
+  }
+
+  function drawBowCursorLoop(){
+    if(bowCtx && activeCursorMode === 'bow'){
+      bowVel.x = bowMouse.x - bowPrevMouse.x;
+      bowVel.y = bowMouse.y - bowPrevMouse.y;
+      bowPrevMouse.x = bowMouse.x;
+      bowPrevMouse.y = bowMouse.y;
+
+      // Smooth interpolation for lowering bow on click/hold
+      var targetLower = isBowMouseDown ? 1.0 : 0.0;
+      bowLowerProgress += (targetLower - bowLowerProgress) * 0.28;
+
+      bowCtx.clearRect(0, 0, bowCanvas.width, bowCanvas.height);
+
+      // 1. Rosin Spark Embers
+      for(var i = rosinSparks.length - 1; i >= 0; i--){
+        var sp = rosinSparks[i];
+        sp.x += sp.vx;
+        sp.y += sp.vy;
+        sp.alpha *= 0.88;
+        sp.size *= 0.94;
+
+        bowCtx.save();
+        bowCtx.beginPath();
+        bowCtx.arc(sp.x, sp.y, sp.size, 0, Math.PI * 2);
+        bowCtx.fillStyle = sp.color;
+        bowCtx.globalAlpha = sp.alpha;
+        bowCtx.shadowColor = '#d98d3e';
+        bowCtx.shadowBlur = 8;
+        bowCtx.fill();
+        bowCtx.restore();
+
+        if(sp.alpha < 0.02) rosinSparks.splice(i, 1);
+      }
+
+      // 2. Realistic Violin Bow with Lowering / Pressure Dynamics
+      var mx = bowMouse.x;
+      var my = bowMouse.y;
+
+      bowCtx.save();
+
+      // Lower bow by translating along Y (Lifted = -12px, Lowered = +8px)
+      var yOffset = -12 + bowLowerProgress * 20;
+      bowCtx.translate(mx, my + yOffset);
+      
+      // Angle adjusts from -30deg (lifted) to -44deg (lowered into playing position)
+      var baseAngle = (-30 - bowLowerProgress * 14) * (Math.PI / 180);
+      var strokeDynamic = Math.min(0.2, Math.max(-0.2, bowVel.x * 0.015));
+      bowCtx.rotate(baseAngle + strokeDynamic);
+
+      var bowLength = 220;
+      // Stick bends slightly under string pressure when lowered
+      var stickFlex = bowLowerProgress * 3.5;
+      var stickY = -12 + stickFlex;
+      var hairY = 0;
+
+      // A. White Horsehair Ribbon with Contact Glow
+      bowCtx.beginPath();
+      bowCtx.moveTo(-40, hairY);
+      bowCtx.lineTo(bowLength - 10, hairY);
+      bowCtx.strokeStyle = isBowMouseDown ? '#ffffff' : '#f5f0e6';
+      bowCtx.lineWidth = isBowMouseDown ? 4.2 : 3.2;
+      bowCtx.shadowColor = isBowMouseDown ? '#f3d79b' : '#fff3d6';
+      bowCtx.shadowBlur = isBowMouseDown ? 16 : 8;
+      bowCtx.stroke();
+
+      // B. Dark Mahogany Wood Stick
+      bowCtx.beginPath();
+      bowCtx.moveTo(-50, stickY);
+      bowCtx.bezierCurveTo(30, stickY - 2 - stickFlex, 120, stickY - 1 - stickFlex, bowLength - 15, hairY - 3);
+      bowCtx.strokeStyle = '#4a1d0a';
+      bowCtx.lineWidth = 4.5;
+      bowCtx.lineCap = 'round';
+      bowCtx.shadowBlur = 0;
+      bowCtx.stroke();
+
+      // Stick Highlight
+      bowCtx.beginPath();
+      bowCtx.moveTo(-48, stickY - 1);
+      bowCtx.lineTo(bowLength - 20, hairY - 4);
+      bowCtx.strokeStyle = 'rgba(217, 141, 62, 0.5)';
+      bowCtx.lineWidth = 1.8;
+      bowCtx.stroke();
+
+      // C. Ebony Frog at Grip
+      bowCtx.fillStyle = '#111113';
+      bowCtx.fillRect(-45, stickY - 2, 35, 14);
+
+      // Silver Ferrule Ring
+      bowCtx.fillStyle = '#cbd5e1';
+      bowCtx.fillRect(-14, stickY - 2, 5, 14);
+
+      // Mother of Pearl Eye Inlay Dot
+      bowCtx.beginPath();
+      bowCtx.arc(-28, stickY + 5, 3, 0, Math.PI * 2);
+      bowCtx.fillStyle = '#f8fafc';
+      bowCtx.shadowColor = '#38bdf8';
+      bowCtx.shadowBlur = 6;
+      bowCtx.fill();
+
+      // D. Silver Tip Head
+      bowCtx.beginPath();
+      bowCtx.moveTo(bowLength - 15, hairY - 5);
+      bowCtx.lineTo(bowLength - 6, hairY);
+      bowCtx.lineTo(bowLength - 15, hairY + 2);
+      bowCtx.closePath();
+      bowCtx.fillStyle = '#e2e8f0';
+      bowCtx.fill();
+
+      // E. Contact Pressure Glow when Lowered
+      if(bowLowerProgress > 0.3){
+        bowCtx.beginPath();
+        bowCtx.arc(30, hairY, 6 * bowLowerProgress, 0, Math.PI * 2);
+        bowCtx.fillStyle = 'rgba(243, 215, 155, ' + (0.5 * bowLowerProgress) + ')';
+        bowCtx.shadowColor = '#d98d3e';
+        bowCtx.shadowBlur = 12;
+        bowCtx.fill();
+      }
+
+      bowCtx.restore();
+    }
+
+    requestAnimationFrame(drawBowCursorLoop);
+  }
+  drawBowCursorLoop();
+
+  // Scroll Reveal Observer
+  if('IntersectionObserver' in window){
+    var revObserver = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('in');
+        }
+      });
+    }, { threshold: 0.05 });
+    document.querySelectorAll('.reveal').forEach(function(el){
+      revObserver.observe(el);
+      el.classList.add('in');
+    });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); });
+  }
+
+})();
+</script>
+
+</body>
+</html>
